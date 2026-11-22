@@ -13,9 +13,7 @@
 
 using namespace std;
 
-// ============================================================================
-// WEEK 9: Exception Handling - Custom Exception Hierarchy
-// ============================================================================
+
 class ResultSystemException : public exception {
 protected:
     string message;
@@ -39,20 +37,17 @@ public:
         : ResultSystemException("File I/O Error: Unable to open or access '" + filename + "'.") {}
 };
 
-// ============================================================================
-// WEEK 13: Design Pattern - Thread-Safe Singleton Audit Logger
-// ============================================================================
 class AuditLogger {
 private:
     mutex logMutex;
-    AuditLogger() {} // Private constructor
+    AuditLogger() {} 
 
 public:
     AuditLogger(const AuditLogger&) = delete;
     void operator=(const AuditLogger&) = delete;
 
     static AuditLogger& getInstance() {
-        static AuditLogger instance; // Thread-safe initialization (C++11+)
+        static AuditLogger instance; /
         return instance;
     }
 
@@ -65,9 +60,7 @@ public:
     }
 };
 
-// ============================================================================
-// WEEK 11: Templates - Generic Grade & Statistics Evaluator
-// ============================================================================
+
 template <typename T>
 T calculateAverage(const vector<T>& values) {
     if (values.empty()) return T(0);
@@ -85,15 +78,12 @@ char assignLetterGrade(T percentage) {
     return 'F';
 }
 
-// ============================================================================
-// WEEK 7 & WEEK 8: Inheritance & Runtime Polymorphism (Abstract Base Class)
-// ============================================================================
 class Evaluable {
 public:
-    virtual void computeResult() = 0;            // Pure virtual function
-    virtual void displayRecord() const = 0;      // Pure virtual function
-    virtual string serialize() const = 0;        // Pure virtual for File I/O
-    virtual ~Evaluable() {}                      // Mandatory virtual destructor
+    virtual void computeResult() = 0;            
+    virtual void displayRecord() const = 0;      
+    virtual string serialize() const = 0;        
+    virtual ~Evaluable() {}                      
 };
 
 class Student {
@@ -113,10 +103,10 @@ public:
     string getBranch() const { return branch; }
 };
 
-// Derived class inheriting from both Student and Evaluable
+
 class Result : public Student, public Evaluable {
 private:
-    vector<int> marks; // Week 11: STL std::vector for subject marks
+    vector<int> marks; 
     int totalMarks;
     double percentage;
     char grade;
@@ -129,7 +119,6 @@ public:
         computeResult();
     }
 
-    // Week 9: Validate marks and throw custom exception on invalid range
     void setMarks(const vector<int>& m) {
         for (int score : m) {
             if (score < 0 || score > 100) {
@@ -139,13 +128,13 @@ public:
         marks = m;
     }
 
-    // Week 8: Override virtual function to compute total, percentage, and grade
+    
     void computeResult() override {
-        totalMarks = accumulate(marks.begin(), marks.end(), 0); // Week 12: STL accumulate
+        totalMarks = accumulate(marks.begin(), marks.end(), 0); 
         percentage = marks.empty() ? 0.0 : static_cast<double>(totalMarks) / marks.size();
         grade = assignLetterGrade(percentage);
 
-        // Pass condition: overall >= 40% and no subject < 35
+        
         bool allSubjectsPassed = all_of(marks.begin(), marks.end(), [](int s) { return s >= 35; });
         passed = (percentage >= 40.0) && allSubjectsPassed;
     }
@@ -169,7 +158,7 @@ public:
              << (passed ? "PASS" : "FAIL") << "\n";
     }
 
-    // Week 10: Serialize to CSV format for file persistence
+    
     string serialize() const override {
         ostringstream oss;
         oss << usn << "," << name << "," << branch;
@@ -180,9 +169,6 @@ public:
     }
 };
 
-// ============================================================================
-// WEEK 13: Factory Pattern returning Smart Pointer (std::unique_ptr)
-// ============================================================================
 class ResultFactory {
 public:
     static unique_ptr<Result> createResult(const string& usn, const string& name,
@@ -191,9 +177,7 @@ public:
     }
 };
 
-// ============================================================================
-// Result Manager: Combines File I/O, STL Algorithms, Lambdas & Multithreading
-// ============================================================================
+
 class ResultManager {
 private:
     vector<unique_ptr<Result>> records; // Week 11 & 13: vector of unique_ptr
@@ -207,7 +191,6 @@ public:
         records.push_back(move(rec));
     }
 
-    // Week 10: Save records to CSV file
     void saveToFile() const {
         ofstream outFile(dataFile);
         if (!outFile) {
@@ -221,7 +204,7 @@ public:
         cout << "[INFO] Successfully saved " << records.size() << " records to '" << dataFile << "'.\n";
     }
 
-    // Week 10: Load records from CSV file using stringstream
+    
     void loadFromFile() {
         ifstream inFile(dataFile);
         if (!inFile) {
@@ -248,7 +231,7 @@ public:
         cout << "[INFO] Successfully loaded " << records.size() << " records from '" << dataFile << "'.\n";
     }
 
-    // Week 8 & 12: Polymorphic display via base class pointers
+    /
     void displayAll() const {
         cout << "\n================================================================================\n";
         cout << left << setw(12) << "USN" << setw(18) << "Name" << setw(8) << "Branch"
@@ -256,13 +239,13 @@ public:
              << setw(8) << "Total" << setw(9) << "Pct(%)" << setw(7) << "Grade" << "Status\n";
         cout << "--------------------------------------------------------------------------------\n";
         for (const auto& rec : records) {
-            Evaluable* basePtr = rec.get(); // Upcasting to abstract base pointer
-            basePtr->displayRecord();       // Dynamic dispatch
+            Evaluable* basePtr = rec.get(); 
+            basePtr->displayRecord();       
         }
         cout << "================================================================================\n";
     }
 
-    // Week 12: STL sort + Lambda comparator
+    
     void sortByPercentageDesc() {
         sort(records.begin(), records.end(),
              [](const unique_ptr<Result>& a, const unique_ptr<Result>& b) {
@@ -271,7 +254,6 @@ public:
         cout << "\n[INFO] Records sorted by Percentage (Descending).\n";
     }
 
-    // Week 12: STL count_if, find_if, and Lambda filtering
     void filterAndAnalyze(double cutoffPercentage) const {
         int passCount = count_if(records.begin(), records.end(),
                                  [](const unique_ptr<Result>& r) { return r->isPassed(); });
@@ -298,7 +280,7 @@ public:
         });
     }
 
-    // Week 13: Basic Multithreading with std::thread and std::mutex
+    
     void runConcurrentAuditTask() const {
         mutex reportMutex;
         int highScorers = 0;
@@ -325,27 +307,25 @@ public:
     }
 };
 
-// ============================================================================
-// Main Function: End-to-End Demonstration
-// ============================================================================
+
 int main() {
     ResultManager manager;
 
     cout << "=== STUDENT RESULT MANAGEMENT SYSTEM (ECE121 TASK 2: WEEKS 7-13) ===\n\n";
 
-    // 1. Adding valid student records (Weeks 7, 8, 11, 13)
+  
     try {
         manager.addStudentRecord("1NT23EC001", "Aarav Sharma",   "ECE", {88, 92, 85, 90});
         manager.addStudentRecord("1NT23EC002", "Diya Nair",      "ECE", {95, 94, 96, 91});
         manager.addStudentRecord("1NT23EC003", "Rohan Kulkarni", "ECE", {64, 70, 68, 72});
-        manager.addStudentRecord("1NT23EC004", "Sneha Rao",      "ECE", {45, 30, 52, 48}); // Fails M2 (<35)
+        manager.addStudentRecord("1NT23EC004", "Sneha Rao",      "ECE", {45, 30, 52, 48}); 
         manager.addStudentRecord("1NT23EC005", "Vikram Menon",   "ECE", {82, 79, 86, 84});
         cout << "[INFO] 5 valid student records added successfully.\n";
     } catch (const ResultSystemException& e) {
         cerr << "[EXCEPTION] " << e.what() << "\n";
     }
 
-    // 2. Demonstrating Custom Exception Handling on invalid marks (Week 9)
+    
     cout << "\n--- Testing Mark Validation & Custom Exception Handling ---\n";
     try {
         cout << "Attempting to add record with invalid mark (108)...\n";
@@ -365,16 +345,16 @@ int main() {
         cerr << "[FILE EXCEPTION] " << e.what() << "\n";
     }
 
-    // 4. Displaying All Records via Runtime Polymorphism (Week 8)
+    
     cout << "\n--- All Loaded Student Records ---";
     manager.displayAll();
 
-    // 5. Sorting & Filtering via STL Algorithms and Lambdas (Week 12)
+    
     manager.sortByPercentageDesc();
     manager.displayAll();
     manager.filterAndAnalyze(80.0);
 
-    // 6. Multithreaded Audit Check (Week 13)
+    
     manager.runConcurrentAuditTask();
 
     return 0;
