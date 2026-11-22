@@ -5,7 +5,7 @@
 #include <cstddef>
 using namespace std;
  
-// Week 2: inline function and function overloading
+
 inline double toMilliVolts(double volts) {
     return volts * 1000.0;
 }
@@ -17,7 +17,7 @@ double calculateAverage(const double values[], int size) {
     return total / size;
 }
  
-// Week 1: references and pointers
+
 void swapByReference(double &a, double &b) {
     double temp = a;
     a = b;
@@ -36,7 +36,7 @@ private:
     string name;
     double *samples;
     size_t count;
-    static int liveObjects; // Week 5: shared class data
+    static int liveObjects; 
  
     void copySamples(const double *source, size_t n) {
         samples = (n > 0) ? new double[n] : nullptr;
@@ -45,7 +45,7 @@ private:
     }
  
 public:
-    // Week 4: default and parameterized constructors
+    
     SignalSeries() : name("Unnamed"), samples(nullptr), count(0) {
         ++liveObjects;
     }
@@ -56,14 +56,14 @@ public:
         ++liveObjects;
     }
  
-    // Week 4: deep-copy constructor
+    
     SignalSeries(const SignalSeries &other)
         : name(other.name), samples(nullptr), count(0) {
         copySamples(other.samples, other.count);
         ++liveObjects;
     }
  
-    // Week 6: deep-copy assignment operator (Rule of Three)
+    
     SignalSeries &operator=(const SignalSeries &other) {
         if (this != &other) {
             double *newSamples =
@@ -79,13 +79,12 @@ public:
         return *this;
     }
  
-    // Week 4: destructor releases dynamically allocated memory
     ~SignalSeries() {
         delete[] samples;
         --liveObjects;
     }
  
-    // Week 3: encapsulation, setters/getters, this pointer and const function
+    
     void setName(const string &name) {
         this->name = name;
     }
@@ -98,12 +97,12 @@ public:
         return count;
     }
  
-    // Week 5: static member function
+    
     static int getLiveObjects() {
         return liveObjects;
     }
  
-    // Week 6: member operator+ (sample-wise addition)
+
     SignalSeries operator+(const SignalSeries &other) const {
         size_t resultSize = (count < other.count) ? count : other.count;
         double *result = (resultSize > 0) ? new double[resultSize] : nullptr;
@@ -116,7 +115,7 @@ public:
         return sum;
     }
  
-    // Week 6: comparison operator
+    
     bool operator==(const SignalSeries &other) const {
         if (count != other.count) return false;
         for (size_t i = 0; i < count; ++i)
@@ -124,20 +123,20 @@ public:
         return true;
     }
  
-    // Week 6: prefix increment
+    
     SignalSeries &operator++() {
         for (size_t i = 0; i < count; ++i) ++samples[i];
         return *this;
     }
  
-    // Week 6: postfix increment
+
     SignalSeries operator++(int) {
         SignalSeries old(*this);
         ++(*this);
         return old;
     }
  
-    // Week 6: subscript operator with bounds checking
+
     double &operator[](size_t index) {
         if (index >= count) throw out_of_range("Sample index is out of range.");
         return samples[index];
@@ -148,18 +147,18 @@ public:
         return samples[index];
     }
  
-    // Week 5/6: friend stream operators access private data
+
     friend ostream &operator<<(ostream &out, const SignalSeries &signal);
     friend istream &operator>>(istream &in, SignalSeries &signal);
  
-    // Week 5: friend function
+
     friend double calculateAverage(const SignalSeries &signal);
 };
  
-// Definition of static data member (exactly once)
+
 int SignalSeries::liveObjects = 0;
  
-// Week 5/6: friend output operator; returns reference for chaining
+
 ostream &operator<<(ostream &out, const SignalSeries &signal) {
     out << signal.name << " [";
     for (size_t i = 0; i < signal.count; ++i) {
@@ -170,7 +169,7 @@ ostream &operator<<(ostream &out, const SignalSeries &signal) {
     return out;
 }
  
-// Week 5/6: friend input operator
+
 istream &operator>>(istream &in, SignalSeries &signal) {
     string label;
     int n;
@@ -200,7 +199,7 @@ istream &operator>>(istream &in, SignalSeries &signal) {
     return in;
 }
  
-// Week 5: friend function reads private sample data
+
 double calculateAverage(const SignalSeries &signal) {
     if (signal.count == 0) return 0.0;
     double total = 0.0;
@@ -209,7 +208,7 @@ double calculateAverage(const SignalSeries &signal) {
     return total / signal.count;
 }
  
-// Week 2: default argument
+
 void displaySummary(const SignalSeries &signal, const string &unit = "mV") {
     cout << "\nSignal: " << signal.getName() << '\n';
     cout << "Samples: " << signal.size() << '\n';
@@ -231,13 +230,13 @@ int main() {
     cout << "\nOriginal data: " << original << '\n';
     displaySummary(original); // uses default argument
  
-    // Week 4: copy constructor performs a deep copy
+
     SignalSeries copied(original);
     cout << "\nCopied data:   " << copied << '\n';
     cout << "Live SignalSeries objects: "
          << SignalSeries::getLiveObjects() << '\n';
  
-    // Week 6: +, == and ++ operators
+    
     SignalSeries combined = original + copied;
     cout << "\nAdded signal:  " << combined << '\n';
     cout << "Original equals copy? "
@@ -248,21 +247,21 @@ int main() {
     cout << "Original equals updated copy? "
          << (original == copied ? "Yes" : "No") << '\n';
  
-    // Week 6: [] operator
+    
     if (combined.size() > 0) {
         combined[0] = toMilliVolts(combined[0] / 1000.0);
         cout << "First combined sample using []: "
              << combined[0] << " mV\n";
     }
  
-    // Week 1: reference and pointer parameter examples
+    
     double a = 12.5, b = 7.5;
     swapByReference(a, b);
     cout << "\nAfter reference swap: a=" << a << ", b=" << b << '\n';
     swapByPointer(&a, &b);
     cout << "After pointer swap:   a=" << a << ", b=" << b << '\n';
  
-    // Week 2: overloaded average function for a plain array
+    
     double calibration[] = {10.0, 20.0, 30.0};
     cout << "\nCalibration average: "
          << calculateAverage(calibration, 3) << " mV\n";
